@@ -1,4 +1,4 @@
-// run.js
+// deploy.js
 const main = async () => {
   const nftContractFactory = await hre.ethers.getContractFactory("Web3Mint");
   const nftContract = await nftContractFactory.deploy();
@@ -7,9 +7,11 @@ const main = async () => {
 
   const txn = await nftContract.makeAnEpicNFT();
   await txn.wait();
+  console.log("Minted NFT #1");
 
   const txn2 = await nftContract.makeAnEpicNFT();
   await txn2.wait();
+  console.log("Minted NFT #2");
 };
 
 const runMain = async () => {
@@ -17,7 +19,7 @@ const runMain = async () => {
     await main();
     process.exit(0);
   } catch (error) {
-    console.error(error);
+    console.log(error);
     process.exit(1);
   }
 };

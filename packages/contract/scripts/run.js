@@ -5,11 +5,13 @@ const main = async () => {
   await nftContract.deployed();
   console.log("Contract deployed to:", nftContract.address);
 
-  const txn = await nftContract.makeAnEpicNFT();
+  const txn = await nftContract.makeAnEpicNFT(
+    "poker",
+    "bafybeibewfzz7w7lhm33k2rmdrk3vdvi5hfrp6ol5vhklzzepfoac37lry"
+  );
   await txn.wait();
-
-  const txn2 = await nftContract.makeAnEpicNFT();
-  await txn2.wait();
+  const returnedTokenUri = await nftContract.tokenURI(0);
+  console.log("Token URI:", returnedTokenUri);
 };
 
 const runMain = async () => {

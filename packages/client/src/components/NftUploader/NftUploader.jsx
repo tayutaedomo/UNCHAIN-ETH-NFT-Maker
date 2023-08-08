@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import { Web3Storage } from "web3.storage";
 import Web3Mint from "../../utils/Web3Mint.json";
+import useMintCounts from "../../hooks/useMintCounts";
 import ImageLogo from "./image.svg";
 import "./NftUploader.css";
 
@@ -12,6 +13,8 @@ const API_KEY = process.env.REACT_APP_WEB3_STORAGE_TOKEN;
 const NftUploader = () => {
   const [currentAccount, setCurrentAccount] = useState("");
   console.log("currentAccount:", currentAccount);
+
+  const { currentMintCount, maxMintCount, fetchAndUpdateMintCount } = useMintCounts(CONTRACT_ADDRESS, Web3Mint.abi);
 
   const checkIfWalletIsConnected = async () => {
     const { ethereum } = window;
@@ -78,7 +81,7 @@ const NftUploader = () => {
           signer
         );
         console.log("Going to pop wallet now to pay gas...");
-        const nftTxn = await connectedContract.makeAnEpicNFT("sample", ipfs);
+        const nftTxn = await connectedContract.mintIpfsNFT("sample", ipfs);
         console.log("Mining...please wait");
         await nftTxn.wait();
         console.log(`Mined, see transaction: https://sepolia.etherscan.io/tx/${nftTxn.hash}`);
@@ -98,6 +101,7 @@ const NftUploader = () => {
 
   useEffect(() => {
     checkIfWalletIsConnected();
+    fetchAndUpdateMintCount();
   }, []);
 
   return (
@@ -123,6 +127,9 @@ const NftUploader = () => {
         ファイルを選択
         <input className="nftUploadInput" type="file" accept=".jpg , .jpeg , .png" onChange={imageToNFT} />
       </Button>
+      <p>
+        これまでに作成された {currentMintCount} / {maxMintCount} NFT
+      </p>
     </div>
   );
 };

@@ -2,12 +2,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "hardhat/console.sol";
 import "./libraries/Base64.sol";
 
-contract Web3Mint is ERC721 {
+contract Web3Mint is ERC721Enumerable, Ownable {
     struct NftAttributes {
         string name;
         string imageURL;
@@ -17,12 +18,24 @@ contract Web3Mint is ERC721 {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
+    uint256 private _maxSupply = 50;
+
     constructor() ERC721("NFT", "nft") {
         console.log("This is my NFT contract.");
     }
 
-    function makeAnEpicNFT(string memory name, string memory imageURI) public {
+    function maxSupply() public view returns (uint256) {
+        return _maxSupply;
+    }
+
+    function setMaxSupply(uint256 value) public onlyOwner {
+        _maxSupply = value;
+    }
+
+    function mintIpfsNFT(string memory name, string memory imageURI) public {
         uint256 newItemId = _tokenIds.current();
+        require(newItemId < _maxSupply, "Max supply reached");
+
         _safeMint(msg.sender, newItemId);
         web3Nfts.push(NftAttributes({ name: name, imageURL: imageURI }));
         console.log("An NFT w/ ID %s has been minted to %s", newItemId, msg.sender);
